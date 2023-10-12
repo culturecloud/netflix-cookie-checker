@@ -27,10 +27,9 @@ def load_cookies_from_json(FILEPATH):
 
 def open_webpage_with_cookies(URL, COOKIES):
     firefox_options = Options()
-    firefox_options.headless = True
+    firefox_options.add_argument("start-maximized")
+    firefox_options.add_argument("--headless")
     driver = webdriver.Firefox(options=firefox_options)
-    if config.use_minimized:
-        driver.minimize_window()
     driver.get(URL)
 
     for cookie in COOKIES:
