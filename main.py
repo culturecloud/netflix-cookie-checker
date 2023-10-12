@@ -29,10 +29,10 @@ def open_webpage_with_cookies(URL: str, COOKIES: dict):
     driver.refresh()
 
     if driver.find_elements(By.CSS_SELECTOR, ".btn"):
-        print(f"❌ Expired cookies! - {filename}")
+        print(f"✅ Working cookies! - {filename}")
         driver.quit()
     else:
-        print(f"✅ Working cookies! - {filename}")
+        print(f"❌ Expired cookies! - {filename}")
         
         try:
             os.mkdir(working_cookies_path)
