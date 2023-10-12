@@ -28,11 +28,10 @@ def open_webpage_with_cookies(URL: str, COOKIES: dict):
 
     driver.refresh()
 
-    if driver.find_elements(By.CSS_SELECTOR, ".btn"):
-        print(f"✅ Working cookies! - {filename}")
-        driver.quit()
-    else:
+    if driver.find_elements(By.CSS_SELECTOR, ".login-form"):
         print(f"❌ Expired cookies! - {filename}")
+    else:
+        print(f"✅ Working cookies! - {filename}")
         
         try:
             os.mkdir(working_cookies_path)
@@ -43,8 +42,8 @@ def open_webpage_with_cookies(URL: str, COOKIES: dict):
         with open(new_filepath, "w", encoding="utf-8") as c:
             c.write(content)
         
-        driver.quit()
-        os.remove(filepath)
+    driver.quit()
+    os.remove(filepath)
 
 
 for filename in os.listdir(cookies_path):
@@ -57,8 +56,8 @@ for filename in os.listdir(cookies_path):
             try:
                 cookies = load_cookies_from_json(filepath)
                 open_webpage_with_cookies(url, cookies)
-            except InvalidCookieDomainException:
-                print(f"🚫 Invalid cookies! - {filename}")
+            except (InvalidCookieDomainException, UnableToSetCookieException) as e:
+                print(f"🚫 Invalid cookies! - {filename} - {str(e)}")
                 
                 try:
                     os.mkdir(invalid_cookies_path)
