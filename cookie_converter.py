@@ -14,7 +14,7 @@ def convert_netscape_cookie_to_json(cookie_file_content):
         fields = line.strip().split("\t")
         if len(fields) >= 7:
             cookie = {
-                "domain": fields[0],
+                "domain": fields[0].replace("www", ""),
                 "flag": fields[1],
                 "path": fields[2],
                 "secure": fields[3] == "TRUE",
