@@ -1,19 +1,12 @@
-import json
 import os
+import json
 import random
-import tkinter
-from tkinter import filedialog
 import shutil
 
-while True:
-    print("\n<<< Select Netscape cookies folder >>>\n\n")
-    tkinter.Tk().withdraw()
-    folder_path = filedialog.askdirectory()
-    if folder_path != "":
-        break
 
+input_path = "cookies"
+output_path = "json_cookies"
 rand_number = random.randint(1, 99999)
-
 
 def convert_netscape_cookie_to_json(cookie_file_content):
     cookies = []
@@ -35,55 +28,21 @@ def convert_netscape_cookie_to_json(cookie_file_content):
     return JSON_DATA
 
 
-path = "json_cookies"
 try:
-    os.mkdir(path)
-    print(f"Folder {path} created!")
-    for filename in os.listdir(folder_path):
-        filepath = os.path.join(folder_path, filename)
-        if os.path.isfile(filepath):
-            with open(filepath, "r", encoding="utf-8") as file:
-                content = file.read()
-
-            json_data = convert_netscape_cookie_to_json(content)
-
-            with open(f"json_cookies/{filename}", "w", encoding="utf-8") as f:
-                f.write(json_data)
-                print(f"{filename} - DONE!")
-
+    os.mkdir(output_path)
+    print(f"Folder {output_path} created!")
 except FileExistsError:
-    if (
-        input(
-            "Do you want to remove old cookies folder? (y/n)\n [y] Recommended \n > : "
-        )
-        == "y"
-    ):
-        shutil.rmtree(path)
-        os.mkdir(path)
-        for filename in os.listdir(folder_path):
-            filepath = os.path.join(folder_path, filename)
-            if os.path.isfile(filepath):
-                with open(filepath, "r", encoding="utf-8") as file:
-                    content = file.read()
+    print(f"Folder {output_path} already exists! New cookies will be appended.")
+    pass
+    
+for filename in os.listdir(input_path):
+    filepath = os.path.join(input_path, filename)
+    if os.path.isfile(filepath):
+        with open(filepath, "r", encoding="utf-8") as file:
+            content = file.read()
 
-                json_data = convert_netscape_cookie_to_json(content)
+        json_data = convert_netscape_cookie_to_json(content)
 
-                with open(f"json_cookies/{filename}", "w", encoding="utf-8") as f:
-                    f.write(json_data)
-                    print(f"{filename} - DONE!")
-
-    else:
-        os.mkdir(str(f"temp {rand_number}"))
-        for filename in os.listdir(folder_path):
-            filepath = os.path.join(folder_path, filename)
-            if os.path.isfile(filepath):
-                with open(filepath, "r") as file:
-                    content = file.read()
-
-                json_data = convert_netscape_cookie_to_json(content)
-
-                with open(f"temp {rand_number}/{filename}", "w", encoding="utf-8") as f:
-                    f.write(json_data)
-                    print(f"{filename} - DONE!")
-
-        print(f"\n\nsaved cookies to the temp folder - temp {rand_number}")
+        with open(f"{output_path}/{filename}", "w", encoding="utf-8") as f:
+            f.write(json_data)
+            print(f"{filename} - DONE!")
