@@ -24,7 +24,7 @@ def open_webpage_with_cookies(URL: str, COOKIES: dict):
     driver.get(URL)
 
     for cookie in COOKIES:
-        if cookie.domain == ".netflix.com":
+        if cookie["domain"] == ".netflix.com":
             driver.add_cookie(cookie)
 
     driver.refresh()
